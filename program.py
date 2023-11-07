@@ -3,39 +3,18 @@
 # System Imports
 import os
 
+# Third-Part imports
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+
 # First-Party imports
-from employee import Employee
+from employee import Base, Employee
 from user_interface import UserInterface
 from utils import CSVProcessor
 
 
 def main(*args):
     """Method to run program"""
-
-    # Make a new instance of Employee class
-    # my_employee = Employee(None, None, None)
-
-    # my_employee.first_name = "David"
-    # my_employee.last_name = "Barnes"
-    # my_employee.weekly_salary = 2453.45
-
-    # print(my_employee)
-
-    # my_employee = Employee("Joe", "Somebody", 345.56)
-
-    # print(my_employee)
-
-    # The above code was just for demo.
-    # The actual program will be using the array defined below.
-    # TODO: The above lines can be removed or commented when program is finished.
-
-    employees = []
-    # employees.append(Employee("David", "Barnes", 835.00))
-    # employees.append(Employee("James", "Kirk", 453.00))
-    # employees.append(Employee("Jean-Luc", "Picard", 290.00))
-    # employees.append(Employee("Benjamin", "Sisko", 587.00))
-    # employees.append(Employee("Kathryn", "Janeway", 184.00))
-    # employees.append(Employee("Jonathan", "Archer", 135.00))
 
     # Make a new instance of the UserInterface class
     ui = UserInterface()
@@ -46,14 +25,25 @@ def main(*args):
     # Make new instance of CSVProcessor class
     csv_processor = CSVProcessor()
 
-    # Reading the CSV file could raise exceptions. Be sure to catch them.
-    try:
-        # Call the import_csv method sending in our path to the csv and the Employee list.
-        csv_processor.import_csv(path_to_csv_file, employees)
-    except FileNotFoundError:
-        ui.print_file_not_found_error()
-    except EOFError:
-        ui.print_empty_file_error()
+    # If we do not have the database, we can create it.
+    if not os.path.exists("./db.sqlite3"):
+        # Create the database
+        create_database()
+
+        # List of employees
+        employees = []
+
+        # Reading the CSV file could raise exceptions. Be sure to catch them.
+        try:
+            # Call the import_csv method sending in our path to the csv and the Employee list.
+            csv_processor.import_csv(path_to_csv_file, employees)
+        except FileNotFoundError:
+            ui.print_file_not_found_error()
+        except EOFError:
+            ui.print_empty_file_error()
+
+        # Populate the database with data from the CSV
+        populate_database(employees)
 
     # Get some input from the user
     selection = ui.display_menu_and_get_response()
@@ -77,3 +67,23 @@ def main(*args):
 
         # Lastly, re-prompt user for input on what to do.
         selection = ui.display_menu_and_get_response()
+
+
+# Database engine instance.
+engine = create_engine("sqlite:///db.sqlite3", echo=False)
+# Get the Session class by using SQLAlchemy's sessionmaker
+Session = sessionmaker(bind=engine)
+# Make instance of Session class.
+session = Session()
+
+
+def create_database():
+    # Use child classes of Base class to read the attributes of each
+    # child and then create database tables that contain those attributes.
+    Base.metadata.create_all(engine)
+
+
+def populate_database(employees):
+    for employee in employees:
+        session.add(employee)
+        session.commit()
