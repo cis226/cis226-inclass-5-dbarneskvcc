@@ -34,9 +34,28 @@ class UserInterface:
 
     def print_list(self, output_list):
         """Print list of employees"""
+        print()
         print("Printing the List")
         print(f"{'First Name':<10} {'Last Name':<20} {'Weekly Salary':>14}")
         print(output_list)
+        print()
+        print()
+        print()
+
+    def print_entry(self, entry):
+        """Print a single entry"""
+        print()
+        print("Single entry")
+        print(f"{'First Name':<10} {'Last Name':<20} {'Weekly Salary':>14}")
+        print(entry)
+        print()
+        print()
+        print()
+
+    def print_text(self, text):
+        """Print some text"""
+        # I know this seems silly. But then all external prints are from UI
+        print(text)
 
     def print_file_not_found_error(self):
         """Display file not found error"""
@@ -50,9 +69,13 @@ class UserInterface:
 
     def _print_menu(self):
         """Print menu to user"""
+        print()
         print("What would you like to do?")
-        print("1. Print List")
+        print("1. Demo database and print list")
         print("2. Exit")
+        print()
+        print()
+        print()
 
     def _print_prompt(self):
         """Print main prompt to user"""
